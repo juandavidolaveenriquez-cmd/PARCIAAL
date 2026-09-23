@@ -43,4 +43,11 @@ public class CargadorVE {
         this.ubicacion = ubicacion;
         this.potenciaActual = 0.0;
     }
+   public String getFabricante() { return fabricante; }
+    public void setFabricante(String fabricante) { this.fabricante = fabricante; }
  
+    public int getAnioInstalacion() { return anioInstalacion; }
+    public void setAnioInstalacion(int anioInstalacion) { this.anioInstalacion = anioInstalacion; }
+ 
+    public int getVoltajeNominal() { return voltajeNominal; }
+    public void setVoltajeNominal(int voltajeNominal) { this.voltajeNominal = voltajeNominal; }
