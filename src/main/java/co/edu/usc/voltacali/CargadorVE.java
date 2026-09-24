@@ -50,4 +50,4 @@ public class CargadorVE {
     public void setAnioInstalacion(int anioInstalacion) { this.anioInstalacion = anioInstalacion; }
  
     public int getVoltajeNominal() { return voltajeNominal; }
-    public void setVoltajeNominal(int voltajeNominal) { this.voltajeNominal = voltajeNominal; } //ola
+    public void setVoltajeNominal(int voltajeNominal) { this.voltajeNominal = voltajeNominal; } //olaA
