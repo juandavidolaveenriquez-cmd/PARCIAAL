@@ -35,6 +35,15 @@ public class App {
         return sb.toString();
     }
 
+    // Cuenta los registros inválidos de la bitácora de un cargador
+    private static int contarInvalidos(CargadorVE c) {
+        int total = 0;
+        for (CargadorVE.RegistroSesion r : c.getBitacora()) {
+            if (!r.isValido()) total++;
+        }
+        return total;
+    }
+
     public static void main(String[] args) {
 
         // ===== Paso 1: crear la flota =====
@@ -124,6 +133,8 @@ public class App {
         CargadorVE.setPrefijoSalida("");
         int n = (args.length > 0) ? Integer.parseInt(args[0]) : ULTIMOS_DOS_DIGITOS;
         int r = n % 4;
+        int d1 = n / 10;   // penúltimo dígito
+        int d2 = n % 10;   // último dígito
         sal("R", "N = " + n + ", r = " + r);
         codigo("R");
 
@@ -170,6 +181,57 @@ public class App {
                 break;
             }
         }
+        CargadorVE.setPrefijoSalida("");
+
+        // ===== Parte F: extensión personalizada (C6 calculado a partir de N) =====
+        CargadorVE c6 = new CargadorVE(
+                "USC-" + n,
+                2015 + d2,
+                (n % 2 == 0) ? 220 : 400,
+                CargadorVE.TipoConector.values()[n % 5],
+                CargadorVE.TipoCargador.values()[n % 6],
+                d1 % 3 + 1,
+                d2 % 4 + 1,
+                20 + n,
+                CargadorVE.Ubicacion.values()[n % 8]);
+
+        sal("X01", "N = " + n + ", d1 = " + d1 + ", d2 = " + d2);
+        codigo("X01"); c6.mostrar(false);
+
+        codigo("X02");
+        int invalidosAntes = contarInvalidos(c6);
+        c6.setPotenciaActual(c6.getPotenciaMaxima() / 2);
+        c6.aumentarPotencia(d2 + 5, d1 + 1);
+        boolean hubo = contarInvalidos(c6) > invalidosAntes;
+        sal("X02", "Potencia final C6: " + c6.getPotenciaActual() + " kW");
+        sal("X02", "¿Algún paso fue rechazado? " + (hubo ? "Sí" : "No"));
+
+        codigo("X03");
+        sal("X03", "Tiempo estimado (" + (n + 10) + " kWh): " + dos(c6.tiempoEstimadoCarga(n + 10)) + " h");
+
+        CargadorVE[] flotaExtendida = new CargadorVE[flota.length + 1];
+        for (int i = 0; i < flota.length; i++) {
+            flotaExtendida[i] = flota[i];
+        }
+        flotaExtendida[flota.length] = c6;
+        sal("X04", "flotaExtendida creada con " + flotaExtendida.length + " cargadores");
+
+        int[] conteoExt = CargadorVE.contarPorTipo(flotaExtendida);
+        for (CargadorVE.TipoCargador t : CargadorVE.TipoCargador.values()) {
+            sal("X05", t + ": " + conteoExt[t.ordinal()]);
+        }
+        sal("X05", "Promedio de potencia: " + dos(CargadorVE.promedioPotencia(flotaExtendida)) + " kW");
+        CargadorVE mayorExt = CargadorVE.mayorPotencia(flotaExtendida);
+        if (mayorExt == null) {
+            sal("X05", "Mayor potencia: no hay cargadores");
+        } else {
+            sal("X05", "Mayor potencia: " + mayorExt.getFabricante() + " con " + mayorExt.getPotenciaActual() + " kW");
+        }
+        sal("X05", "Excesos de potencia contratada: " + CargadorVE.excesosDePotenciaContratada(flotaExtendida));
+
+        sal("X06", "getTotalCargadores() = " + CargadorVE.getTotalCargadores());
+        sal("X06", "contadorRegistros = " + CargadorVE.getContadorRegistros());
+        codigo("X06"); c6.mostrar(true);
         CargadorVE.setPrefijoSalida("");
     }
 }
