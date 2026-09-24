@@ -51,3 +51,52 @@ public class CargadorVE {
  
     public int getVoltajeNominal() { return voltajeNominal; }
     public void setVoltajeNominal(int voltajeNominal) { this.voltajeNominal = voltajeNominal; } //olaA
+     public TipoConector getTipoConector() { return tipoConector; }
+    public void setTipoConector(TipoConector tipoConector) { this.tipoConector = tipoConector; }
+ 
+    public TipoCargador getTipoCargador() { return tipoCargador; }
+    public void setTipoCargador(TipoCargador tipoCargador) { this.tipoCargador = tipoCargador; }
+ 
+    public int getNumeroConectores() { return numeroConectores; }
+    public void setNumeroConectores(int numeroConectores) { this.numeroConectores = numeroConectores; }
+ 
+    public int getPuestosParqueo() { return puestosParqueo; }
+    public void setPuestosParqueo(int puestosParqueo) { this.puestosParqueo = puestosParqueo; }
+ 
+    public double getPotenciaMaxima() { return potenciaMaxima; }
+    public void setPotenciaMaxima(double potenciaMaxima) { this.potenciaMaxima = potenciaMaxima; }
+    public Ubicacion getUbicacion() { return ubicacion; }
+    public void setUbicacion(Ubicacion ubicacion) { this.ubicacion = ubicacion; }
+ 
+    public double getPotenciaActual() { return potenciaActual; }
+ 
+    /**
+     * Rechaza valores negativos o mayores que potenciaMaxima:
+     * muestra un mensaje, no cambia el estado y registra el intento en la bitácora.
+     */
+    public void setPotenciaActual(double potenciaActual) {
+        if (potenciaActual < 0 || potenciaActual > potenciaMaxima) {
+            String mensaje = "Potencia inválida: " + potenciaActual
+                    + " kW (debe estar entre 0 y " + potenciaMaxima + " kW)";
+            System.out.println(mensaje);
+            bitacora.add(mensaje);
+            return;
+        }
+        this.potenciaActual = potenciaActual;
+    }
+ 
+    public List<String> getBitacora() {
+        return new ArrayList<>(bitacora); // copia para no exponer la lista interna
+    }
+ 
+    // Prueba rápida
+    public static void main(String[] args) {
+        CargadorVE c = new CargadorVE("ABB", 2024, 400, TipoConector.CCS,
+                TipoCargador.RAPIDO, 2, 4, 50.0, Ubicacion.CENTRO_COMERCIAL);
+        c.setPotenciaActual(30);   // válido
+        c.setPotenciaActual(-5);   // rechazado
+        c.setPotenciaActual(80);   // rechazado
+        System.out.println("Potencia actual: " + c.getPotenciaActual());
+        System.out.println("Bitácora: " + c.getBitacora());
+    }
+}
